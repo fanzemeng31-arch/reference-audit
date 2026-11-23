@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to check whether a reference written by an AI tool is real</title>
+<meta name="description" content="AI writing tools sometimes produce references to works that were never published. Three signs of an invented reference, four steps to check one by hand, and a free way to check a whole list.">
+<link rel="canonical" href="https://fanzemeng31-arch.github.io/reference-audit/guides/check-ai-references.html">
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<main>
+<p class="small"><a href="../">Reference Audit</a> / Guides</p>
+<h1>How to check whether a reference written by an AI tool is real</h1>
+<p>ChatGPT, Claude and other AI writing tools sometimes produce references to works that were never published. The reference looks correct. The authors are often real people who work on the topic, the journal exists, and the volume and page numbers are in a believable range. Only the article is missing. Examiners and journal editors treat an invented reference as a serious fault.</p>
+
+<h2>Why it happens</h2>
+<p>A language model writes the next likely word. When it is asked for a source, it writes text that has the form of a reference, and the form can be right while the work does not exist. Tools that search the web before they answer make fewer of these errors and still make some.</p>
+
+<h2>Three signs of an invented reference</h2>
+<ol>
+<li>The DOI opens a different article, or none. A DOI is the permanent identifier that a publisher registers for each article, and it looks like 10.1086/225469.</li>
+<li>The journal is real, and the volume, issue and pages named in the reference hold another article.</li>
+<li>The authors are real, and none of their publication lists contains the title.</li>
+</ol>
+
+<h2>How to check one reference by hand</h2>
+<ol>
+<li>Search for the exact title, in quotation marks, in Google Scholar or at <a href="https://search.crossref.org/">search.crossref.org</a>.</li>
+<li>If the reference has a DOI, open https://doi.org/ followed by the DOI, and compare the title and the authors with your reference.</li>
+<li>Open the journal's own website and look at the contents of the volume and issue named in the reference.</li>
+<li>For a book, search a library catalogue such as <a href="https://search.worldcat.org/">WorldCat</a>.</li>
+</ol>
+
+<h2>How to check a whole list at once</h2>
+<p><a href="../">Reference Audit</a> does the first two steps for every entry in a list. You paste the list, and each reference is looked up in Crossref and OpenAlex, the two largest open indexes of scholarly work. Each entry then carries one of four labels: found, check (the year, the first author or the DOI differs from the record), retracted, or no record. It is free and needs no account.</p>
+<p><a class="btn" href="../">Open Reference Audit</a></p>
+
+<h2>What no checker can tell you</h2>
+<p>A reference can be real and still be wrong for your sentence. AI tools also attach real articles to claims that those articles do not make. Once a reference is confirmed to exist, read the part of the work that you cite.</p>
+
+<footer class="small"><p>See also: <a href="retracted-papers.html">How to find out whether a paper you cite has been retracted</a>.</p></footer>
+</main>
+</body>
+</html>

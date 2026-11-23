@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reference Audit: check that every reference in your list exists</title>
 <meta name="description" content="Paste a reference list. Reference Audit looks up each entry in Crossref and OpenAlex and tells you which ones exist, which carry a wrong year, author or DOI, and which have been retracted.">
+<link rel="canonical" href="https://fanzemeng31-arch.github.io/reference-audit/">
+<meta property="og:title" content="Reference Audit: check that every reference in your list exists">
+<meta property="og:description" content="Paste a reference list. Each entry is looked up in Crossref and OpenAlex. You see which references exist, which carry a wrong year, author or DOI, and which have been retracted.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://fanzemeng31-arch.github.io/reference-audit/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Reference Audit","url":"https://fanzemeng31-arch.github.io/reference-audit/","applicationCategory":"EducationalApplication","operatingSystem":"Any","description":"Checks that each reference in a pasted list exists by looking it up in Crossref and OpenAlex, and flags wrong years, authors and DOIs, and retracted works.","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"}}</script>
 <style>
 :root{--bg:#fbfaf7;--card:#fff;--ink:#1d1d1b;--soft:#5f5e58;--line:#dedcd3;--accent:#1f4e79;--ok:#1d6b3a;--okbg:#e6f3ea;--warn:#8a5a00;--warnbg:#fbf0d5;--bad:#a12424;--badbg:#fbe5e3;--miss:#4a4a55;--missbg:#ecebf1}
 @media (prefers-color-scheme:dark){:root{--bg:#16171a;--card:#1f2125;--ink:#ecebe6;--soft:#a9a79f;--line:#34363c;--accent:#8fbcea;--ok:#7fd39b;--okbg:#17301f;--warn:#f0c36a;--warnbg:#3a2e12;--bad:#ff9a92;--badbg:#3d1a18;--miss:#c3c2d0;--missbg:#2a2a33}}
@@ -45,7 +51,7 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line)}
 <p class="lede">Paste your reference list. Each entry is looked up in Crossref and OpenAlex, the two largest open indexes of scholarly work. You see which references exist, which carry a wrong year, author or DOI, and which have been retracted.</p>
 
 <div class="noprint">
-<label for="refs" class="small">One reference per line, or separate references with a blank line. Any citation style.</label>
+<label for="refs" class="small">One reference per line, or separate references with a blank line. Any citation style, or the contents of a BibTeX file.</label>
 <textarea id="refs" spellcheck="false" placeholder="Merton, R.K. (1968) 'The Matthew effect in science', Science, 159(3810), pp. 56-63."></textarea>
 <div class="row">
   <button class="primary" id="run">Check references</button>
@@ -74,6 +80,15 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line)}
 
 <h2>Limits</h2>
 <p>The check tells you whether a work exists and whether its details agree with yours. It does not read the work, so it cannot tell you whether the work supports the sentence you cite it for. A label of “Found” means the reference is real, and the reading is still yours to do.</p>
+
+<h2>Other ways to use it</h2>
+<p>The same check runs from the terminal, and as a skill for AI coding agents such as Claude Code. The script reads a text file or a BibTeX file and prints a report. The <a href="https://github.com/fanzemeng31-arch/reference-audit#from-the-terminal">instructions</a> are on GitHub.</p>
+
+<h2>Guides</h2>
+<ul>
+<li><a href="guides/check-ai-references.html">How to check whether a reference written by an AI tool is real</a></li>
+<li><a href="guides/retracted-papers.html">How to find out whether a paper you cite has been retracted</a></li>
+</ul>
 
 <footer class="small">
 <p id="passline"></p>
@@ -106,8 +121,22 @@ const SAMPLE = [
 /* ---------- text handling ---------- */
 const norm = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/<[^>]+>/g, ' ').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 const STOP = new Set('a an the of in on and for to with by from at as is are'.split(' '));
+function bibToRefs(text) {
+  const out = [];
+  for (const chunk of text.split(/^\s*@/m).slice(1)) {
+    if (/^(comment|string|preamble)\b/i.test(chunk)) continue;
+    const f = {}, re = /(\w+)\s*=\s*(?:\{((?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*)\}|"([^"]*)"|(\d+))/g;
+    let m;
+    while ((m = re.exec(chunk))) f[m[1].toLowerCase()] = (m[2] || m[3] || m[4] || '').replace(/\\[a-zA-Z]+\s*/g, '').replace(/\\[^a-zA-Z]/g, '').replace(/[{}]/g, '').replace(/\s+/g, ' ').trim();
+    if (!f.title) continue;
+    const where = f.journal || f.journaltitle || f.booktitle || f.publisher || '';
+    out.push((f.author || f.editor || '') + ' (' + (f.year || (f.date || '').slice(0, 4)) + ') ' + f.title + '. ' + (where ? where + '. ' : '') + (f.doi ? 'doi:' + f.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//i, '') : ''));
+  }
+  return out;
+}
 function splitRefs(text) {
   text = text.replace(/\r/g, '');
+  if (/^\s*@\w+\s*\{/m.test(text)) return bibToRefs(text);
   const parts = /\n\s*\n/.test(text.trim()) ? text.split(/\n\s*\n/).map(p => p.replace(/\s*\n\s*/g, ' ')) : text.split('\n');
   return parts.map(s => s.replace(/^\s*(\[\d+\]|\(\d+\)|\d+[.)])\s*/, '').trim()).filter(s => s.length >= 15);
 }
@@ -153,14 +182,14 @@ async function getJson(url, tries = 3) {
   return undefined;
 }
 const CR = 'https://api.crossref.org/works';
-const SEL = 'DOI,title,subtitle,author,issued,published-print,published-online,container-title,type';
+const SEL = 'DOI,title,subtitle,author,issued,published-print,published-online,container-title,type,updated-by';
 const yr = d => d && d['date-parts'] && d['date-parts'][0] && d['date-parts'][0][0];
 function crRec(it) {
   const title = (it.title || [])[0] || '', sub = (it.subtitle || [])[0] || '';
   return { src: 'Crossref', doi: it.DOI || null, title, full: sub ? title + ' ' + sub : title,
     years: [...new Set([yr(it.issued), yr(it['published-print']), yr(it['published-online'])].filter(Boolean))],
     authors: (it.author || []).map(a => a.family || a.name).filter(Boolean),
-    journal: (it['container-title'] || [])[0] || '', retracted: false };
+    journal: (it['container-title'] || [])[0] || '', retracted: (it['updated-by'] || []).some(u => u.type === 'retraction') || /^retracted\b/i.test(title) };
 }
 function oaRec(w) {
   return { src: 'OpenAlex', doi: w.doi ? w.doi.replace(/^https?:\/\/doi\.org\//i, '') : null, title: w.title || '', full: w.title || '',
@@ -177,10 +206,6 @@ async function crSearch(ref) {
 async function oaSearch(ref) {
   const j = await getJson('https://api.openalex.org/works?search=' + encodeURIComponent(guessTitle(ref).slice(0, 200)) + '&per-page=5&select=id,doi,title,publication_year,authorships,primary_location,is_retracted', 1);
   return j && j.results ? j.results.map(oaRec) : undefined;
-}
-async function oaRetracted(doi) {
-  const j = await getJson('https://api.openalex.org/works/https://doi.org/' + encodeURI(doi) + '?select=is_retracted', 1);
-  return !!(j && j.is_retracted);
 }
 
 /* ---------- judging one reference ---------- */
@@ -231,7 +256,7 @@ async function audit(ref) {
     if (best.year === 'near') out.notes.push('The record gives the year ' + rec.years.join(' or ') + ', one year away from yours. Online and print years often differ by one.');
     if (doi && !doiWrong && rec.doi && doi.toLowerCase() !== rec.doi.toLowerCase()) out.issues.push('The DOI in your reference differs from the DOI of the record.');
     if (rec.journal && !norm(ref).includes(norm(rec.journal))) out.notes.push('The record names the journal or publisher series as ' + rec.journal + '.');
-    if (rec.retracted || (rec.doi && await oaRetracted(rec.doi))) { out.verdict = 'retracted'; out.issues.unshift('This work has been retracted.'); return out; }
+    if (rec.retracted) { out.verdict = 'retracted'; out.issues.unshift('This work has been retracted.'); return out; }
   }
   out.verdict = out.issues.length ? 'warn' : 'ok';
   return out;
