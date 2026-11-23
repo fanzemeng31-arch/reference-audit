@@ -81,6 +81,11 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line)}
 <h2>Limits</h2>
 <p>The check tells you whether a work exists and whether its details agree with yours. It does not read the work, so it cannot tell you whether the work supports the sentence you cite it for. A label of “Found” means the reference is real, and the reading is still yours to do.</p>
 
+<h2 id="pass">The 30-day pass</h2>
+<p>Lists of up to 15 references are checked free of charge. For longer lists there is a pass. It costs £5 with tax included, lasts 30 days, checks up to 400 references at a time and adds the CSV download. It is a single payment and does not renew. <a href="https://buy.stripe.com/8x27sD6hP2gsfWWdZb9oc00">Buy the pass</a>.</p>
+<p>Stripe takes the payment, acts as the seller, sends your receipt and collects any tax due. This site never sees your card details. After you pay you return to this page, and the pass is switched on in the browser you paid in. If you change browser or clear its data, <a href="https://github.com/fanzemeng31-arch/reference-audit/issues">open an issue</a> and the pass will be restored.</p>
+<p>Refunds: ask within 14 days of payment, through the support link on your receipt or by opening an issue, and the payment is returned in full.</p>
+
 <h2>Other ways to use it</h2>
 <p>The same check runs from the terminal, and as a skill for AI coding agents such as Claude Code. The script reads a text file or a BibTeX file and prints a report. The <a href="https://github.com/fanzemeng31-arch/reference-audit#from-the-terminal">instructions</a> are on GitHub.</p>
 
@@ -92,12 +97,12 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line)}
 
 <footer class="small">
 <p id="passline"></p>
-<p>Reference Audit is free to use. Questions and bug reports: <a href="https://github.com/fanzemeng31-arch/reference-audit/issues">open an issue</a>. Data from <a href="https://www.crossref.org/">Crossref</a> and <a href="https://openalex.org/">OpenAlex</a>.</p>
+<p>Lists of up to 15 references are free. Longer lists need the <a href="#pass">30-day pass</a>. Questions and bug reports: <a href="https://github.com/fanzemeng31-arch/reference-audit/issues">open an issue</a>. Data from <a href="https://www.crossref.org/">Crossref</a> and <a href="https://openalex.org/">OpenAlex</a>.</p>
 </footer>
 </main>
 
 <script>
-const CONFIG = Object.assign({ paymentLink: '', price: '£5', freeLimit: 15, passDays: 30, hardCap: 400 }, window.RA_CONFIG || {});
+const CONFIG = Object.assign({ paymentLink: 'https://buy.stripe.com/8x27sD6hP2gsfWWdZb9oc00', price: '£5', freeLimit: 15, passDays: 30, hardCap: 400 }, window.RA_CONFIG || {});
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -285,7 +290,7 @@ function render() {
 function banner(total, done) {
   const b = $('banner');
   if (total <= done) { b.innerHTML = ''; return; }
-  b.innerHTML = '<div class="banner noprint"><strong>Checked the first ' + done + ' of ' + total + ' references.</strong> A ' + CONFIG.passDays + '-day pass (' + esc(CONFIG.price) + ', one payment, no subscription) checks lists of any length and adds the CSV download. <a class="btn primary" style="margin-left:6px" href="' + esc(CONFIG.paymentLink) + '">Buy the pass</a></div>';
+  b.innerHTML = '<div class="banner noprint"><strong>Checked the first ' + done + ' of ' + total + ' references.</strong> A ' + CONFIG.passDays + '-day pass (' + esc(CONFIG.price) + ', one payment, no subscription) checks up to ' + CONFIG.hardCap + ' references at a time and adds the CSV download. <a class="btn primary" style="margin-left:6px" href="' + esc(CONFIG.paymentLink) + '">Buy the pass</a></div>';
 }
 async function run() {
   const all = splitRefs($('refs').value);

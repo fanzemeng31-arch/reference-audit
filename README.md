@@ -9,7 +9,7 @@ Each entry is looked up in [Crossref](https://www.crossref.org/) and [OpenAlex](
 - **Retracted**: the work exists and has been retracted.
 - **No record**: neither index holds a matching record. Both indexes miss many books, reports and works not written in English, so these need a check by hand.
 
-Use it at <https://fanzemeng31-arch.github.io/reference-audit/>. It is free and needs no account. It accepts a reference list in any citation style, or the contents of a BibTeX file.
+Use it at <https://fanzemeng31-arch.github.io/reference-audit/>. Lists of up to 15 references are free, and no account is needed. Longer lists on the web page need a £5 pass that lasts 30 days. The page accepts a reference list in any citation style, or the contents of a BibTeX file. The terminal script below is free for lists of any length.
 
 ## From the terminal
 
