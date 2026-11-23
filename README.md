@@ -1,15 +1,15 @@
 # Reference Audit
 
-Paste a reference list and see which references exist.
+Paste a reference list, or open a draft, and see which references exist.
 
-Each entry is looked up in [Crossref](https://www.crossref.org/) and [OpenAlex](https://openalex.org/). The page then labels it:
+Each entry is looked up in [Crossref](https://www.crossref.org/) and [OpenAlex](https://openalex.org/). Where those two hold no clear match, the page also asks [Semantic Scholar](https://www.semanticscholar.org/) and [Open Library](https://openlibrary.org/) (books), and it resolves DOIs and arXiv numbers that Crossref does not hold through [DataCite](https://datacite.org/). The page then labels it:
 
 - **Found**: a record with this title exists, and its first author and year agree with the reference.
 - **Check**: a record exists, but the year, the first author, the DOI or part of the title differs.
 - **Retracted**: the work exists and has been retracted.
-- **No record**: neither index holds a matching record. Both indexes miss many books, reports and works not written in English, so these need a check by hand.
+- **No record**: none of the indexes asked holds a matching record. They miss many reports, theses and works not written in English, so these need a check by hand.
 
-Use it at <https://fanzemeng31-arch.github.io/reference-audit/>. Lists of up to 15 references are free, and no account is needed. Longer lists on the web page need a £5 pass that lasts 30 days. The page accepts a reference list in any citation style, or the contents of a BibTeX file. The terminal script below is free for lists of any length.
+Use it at <https://fanzemeng31-arch.github.io/reference-audit/>. Lists of up to 15 references are free, and no account is needed. Longer lists on the web page need a £5 pass that lasts 30 days. The page accepts a reference list in any citation style, the contents of a BibTeX file, or a draft as a .docx, .pdf or .txt file. For a draft it also compares the author and year citations in the text with the list, and reports citations that have no entry and entries that are never cited. Entries with a confirmed record and a DOI can be rewritten in APA 7, Harvard, MLA 9, Chicago author-date, Vancouver or IEEE style. The terminal script below is free for lists of any length. It asks Crossref and OpenAlex only, and it does not read drafts or rewrite entries.
 
 ## From the terminal
 
@@ -53,7 +53,7 @@ Then ask the agent to check the references of a draft.
 
 ## Privacy
 
-The web page is a single HTML file with no server behind it. The browser sends each reference straight to the two public indexes. Nothing is stored. The script does the same from your own computer and contacts no other host.
+The web page is a single HTML file with no server behind it. The browser sends each reference straight to the public indexes named above. A draft is read inside the browser, and its text is sent nowhere. Nothing is stored. The script does the same from your own computer and contacts no other host.
 
 ## Limits
 

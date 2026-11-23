@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reference Audit: check that every reference in your list exists</title>
-<meta name="description" content="Paste a reference list. Reference Audit looks up each entry in Crossref and OpenAlex and tells you which ones exist, which carry a wrong year, author or DOI, and which have been retracted.">
+<meta name="description" content="Paste a reference list or open a draft. Reference Audit looks up each entry in five open indexes, tells you which exist, which carry a wrong year, author or DOI, and which are retracted, compares the list with the citations in your text, and rewrites confirmed entries in APA, Harvard, MLA, Chicago, Vancouver or IEEE style.">
 <link rel="canonical" href="https://fanzemeng31-arch.github.io/reference-audit/">
 <meta property="og:title" content="Reference Audit: check that every reference in your list exists">
-<meta property="og:description" content="Paste a reference list. Each entry is looked up in Crossref and OpenAlex. You see which references exist, which carry a wrong year, author or DOI, and which have been retracted.">
+<meta property="og:description" content="Paste a reference list or open a draft. Each entry is looked up in five open indexes. You see which references exist, which carry a wrong year, author or DOI, which are retracted, and which citations in your text have no entry in the list.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://fanzemeng31-arch.github.io/reference-audit/">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Reference Audit","url":"https://fanzemeng31-arch.github.io/reference-audit/","applicationCategory":"EducationalApplication","operatingSystem":"Any","description":"Checks that each reference in a pasted list exists by looking it up in Crossref and OpenAlex, and flags wrong years, authors and DOIs, and retracted works.","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Reference Audit","url":"https://fanzemeng31-arch.github.io/reference-audit/","applicationCategory":"EducationalApplication","operatingSystem":"Any","description":"Checks that each reference in a pasted list or an opened draft exists by looking it up in Crossref, OpenAlex, Semantic Scholar, DataCite and Open Library, flags wrong years, authors and DOIs and retracted works, compares the list with the citations in the text, and rewrites confirmed entries in six citation styles.","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"}}</script>
 <style>
 :root{--bg:#fbfaf7;--card:#fff;--ink:#1d1d1b;--soft:#5f5e58;--line:#dedcd3;--accent:#1f4e79;--ok:#1d6b3a;--okbg:#e6f3ea;--warn:#8a5a00;--warnbg:#fbf0d5;--bad:#a12424;--badbg:#fbe5e3;--miss:#4a4a55;--missbg:#ecebf1}
 @media (prefers-color-scheme:dark){:root{--bg:#16171a;--card:#1f2125;--ink:#ecebe6;--soft:#a9a79f;--line:#34363c;--accent:#8fbcea;--ok:#7fd39b;--okbg:#17301f;--warn:#f0c36a;--warnbg:#3a2e12;--bad:#ff9a92;--badbg:#3d1a18;--miss:#c3c2d0;--missbg:#2a2a33}}
@@ -19,13 +19,14 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system
 main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
 h1{font:600 30px/1.2 Georgia,"Times New Roman",serif;margin:0 0 8px}
 h2{font:600 19px/1.3 Georgia,serif;margin:36px 0 8px}
-p{margin:0 0 12px}.lede{color:var(--soft);font-size:17px;max-width:60ch}
+p{margin:0 0 12px}.lede{color:var(--soft);font-size:17px;max-width:64ch}
 textarea{width:100%;min-height:210px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
-button,.btn{font:600 15px/1 inherit;padding:11px 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+button,.btn,select{font:600 15px/1 inherit;padding:11px 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
 button.primary,.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 button:disabled{opacity:.5;cursor:default}
-button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button:focus-visible,.btn:focus-visible,textarea:focus-visible,select:focus-visible,.vh:focus-visible+label{outline:3px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
 .small{font-size:14px;color:var(--soft)}
 progress{width:100%;height:8px;margin-top:6px}
 .summary{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
@@ -35,7 +36,7 @@ progress{width:100%;height:8px;margin-top:6px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0}
 .card .badge{display:inline-block;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700;margin-bottom:6px}
 .card .ref{margin:0 0 6px;overflow-wrap:anywhere}
-.card ul{margin:6px 0 6px 18px;padding:0}.card li{margin:2px 0}
+.card ul{margin:6px 0 6px 18px;padding:0}.card li{margin:2px 0;overflow-wrap:anywhere}
 .card .rec{font-size:14px;color:var(--soft);overflow-wrap:anywhere;margin:6px 0 0}
 a{color:var(--accent)}
 .banner{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);border-radius:8px;padding:12px 14px;margin:14px 0}
@@ -48,38 +49,66 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line)}
 <body>
 <main>
 <h1>Reference Audit</h1>
-<p class="lede">Paste your reference list. Each entry is looked up in Crossref and OpenAlex, the two largest open indexes of scholarly work. You see which references exist, which carry a wrong year, author or DOI, and which have been retracted.</p>
+<p class="lede">Paste your reference list, or open a draft. Each entry is looked up in Crossref and OpenAlex, and where those two hold no clear match, in Semantic Scholar, DataCite and Open Library. You see which references exist, which carry a wrong year, author or DOI, and which have been retracted. With a draft, you also see the citations in your text that have no entry in the list, and the entries your text never cites.</p>
 
 <div class="noprint">
-<label for="refs" class="small">One reference per line, or separate references with a blank line. Any citation style, or the contents of a BibTeX file.</label>
+<label for="refs" class="small">One reference per line, or separate references with a blank line. Any citation style, or the contents of a BibTeX file. You can also paste a whole draft that ends with a section headed “References” or “Bibliography”.</label>
 <textarea id="refs" spellcheck="false" placeholder="Merton, R.K. (1968) 'The Matthew effect in science', Science, 159(3810), pp. 56-63."></textarea>
 <div class="row">
   <button class="primary" id="run">Check references</button>
+  <input type="file" id="file" class="vh" accept=".docx,.pdf,.txt,.md,.tex,.bib"><label class="btn" for="file">Open a draft (.docx, .pdf, .txt)</label>
   <button id="sample">Load an example</button>
   <button id="csv" hidden>Download CSV</button>
   <button id="print" hidden>Print or save as PDF</button>
-  <span class="small" id="count"></span>
 </div>
+<div class="small" id="count" aria-live="polite"></div>
 <div id="progwrap" hidden><progress id="prog" value="0" max="1"></progress><div class="small" id="progtext" aria-live="polite"></div></div>
 </div>
 
 <div id="banner"></div>
 <div class="summary" id="summary"></div>
+<div id="intext"></div>
 <div id="results"></div>
+
+<div id="fmtrow" class="row noprint" hidden>
+  <label for="style" class="small">Rewrite the confirmed entries in</label>
+  <select id="style">
+    <option value="apa">APA 7</option>
+    <option value="harvard-cite-them-right">Harvard (Cite Them Right)</option>
+    <option value="modern-language-association">MLA 9</option>
+    <option value="chicago-author-date">Chicago author-date</option>
+    <option value="vancouver">Vancouver</option>
+    <option value="ieee">IEEE</option>
+  </select>
+  <button id="fmt">Rewrite the list</button>
+  <button id="copy" hidden>Copy</button>
+</div>
+<p class="small" id="fmtnote" aria-live="polite"></p>
+<div id="fmtwrap" hidden><textarea id="fmtout" readonly aria-label="The reference list rewritten in the chosen style"></textarea></div>
 
 <h2>What the labels mean</h2>
 <div class="legend">
 <span class="ok">Found</span><div>A record with this title exists, and its first author and year agree with your reference.</div>
 <span class="warn">Check</span><div>A record exists, but something differs: the year, the first author, the DOI, or part of the title. Invented references often look like this, and so do honest typing errors.</div>
 <span class="retracted">Retracted</span><div>The work exists and has been retracted. Cite it only if you discuss the retraction.</div>
-<span class="miss">No record</span><div>Neither index holds a matching record. Both indexes cover most journal articles and miss many books, reports, theses and works not written in English. Check these by hand.</div>
+<span class="miss">No record</span><div>None of the indexes that were asked holds a matching record. The card names the indexes. Together they cover most journal articles, many preprints, data sets and books, and they still miss many reports, theses and works not written in English. Check these by hand.</div>
 </div>
 
+<h2>The five indexes</h2>
+<p>Crossref and OpenAlex are asked first, because they hold most journal articles. An entry with no clear match there is then looked up in Open Library, which holds books, and in Semantic Scholar, which holds preprints and conference papers. A DOI or an arXiv number that Crossref does not know is looked up in DataCite, which registers preprints, data sets and software. Semantic Scholar limits how often it answers, so on some runs it is left out, and a card that says “No record” lists the indexes that did answer.</p>
+
+<h2>Opening a draft</h2>
+<p>You can open a Word file, a PDF or a text file. The page finds the section headed “References” or “Bibliography”, puts its entries in the box above, and keeps the rest of the text for one further check. That check reads the citations in your text, both the author and year kind such as (Merton, 1968) and the numbered kind such as [12], and compares them with the list. It reports citations with no entry in the list and entries with no citation in the text.</p>
+<p>A Word file gives the cleanest list. A PDF holds lines of text with no mark for where one reference ends, so entries read from a PDF can be joined or split wrongly. Look through the box before you run the check. Citations placed in footnotes are not read.</p>
+
+<h2>Rewriting the list in a citation style</h2>
+<p>After a check you can have the list rewritten in APA, Harvard, MLA, Chicago, Vancouver or IEEE style. Each entry that matched a record with a DOI is written out again from that record by the formatting service of doi.org, so the details come from the publisher's record and not from your typing. Entries with no confirmed record are left as you typed them. An entry labelled “Check” is rewritten from the record too, so read it against your source before you keep it.</p>
+
 <h2>What happens to your text</h2>
-<p>This page has no server of its own. Your browser sends each reference straight to Crossref and OpenAlex, which are public, non-profit indexes, and shows you what they return. Nothing you paste is stored or seen by this site. Paste the reference list only; the rest of your manuscript is not needed.</p>
+<p>This page has no server of its own. A draft that you open is read inside your browser. Only the entries of the reference list leave it: your browser sends each one straight to the public indexes named above, and for rewriting it sends the DOI of a matched record to doi.org. The body of your draft is never sent anywhere, and nothing you paste or open is stored or seen by this site.</p>
 
 <h2>Limits</h2>
-<p>The check tells you whether a work exists and whether its details agree with yours. It does not read the work, so it cannot tell you whether the work supports the sentence you cite it for. A label of “Found” means the reference is real, and the reading is still yours to do.</p>
+<p>The check tells you whether a work exists and whether its details agree with yours. It does not read the work, so it cannot tell you whether the work supports the sentence you cite it for. A label of “Found” means the reference is real, and the reading is still yours to do. The comparison with your text looks for a surname next to a year, so it can take a phrase such as “Paris 2015” for a citation.</p>
 
 <h2 id="pass">The 30-day pass</h2>
 <p>Lists of up to 15 references are checked free of charge. For longer lists there is a pass. It costs £5 with tax included, lasts 30 days, checks up to 400 references at a time and adds the CSV download. It is a single payment and does not renew. <a href="https://buy.stripe.com/8x27sD6hP2gsfWWdZb9oc00">Buy the pass</a>.</p>
@@ -87,7 +116,7 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line)}
 <p>Refunds: ask within 14 days of payment, through the support link on your receipt or by opening an issue, and the payment is returned in full.</p>
 
 <h2>Other ways to use it</h2>
-<p>The same check runs from the terminal, and as a skill for AI coding agents such as Claude Code. The script reads a text file or a BibTeX file and prints a report. The <a href="https://github.com/fanzemeng31-arch/reference-audit#from-the-terminal">instructions</a> are on GitHub.</p>
+<p>A terminal script and a skill for AI coding agents such as Claude Code run the lookup in Crossref and OpenAlex on a text file or a BibTeX file and print a report. They are free for lists of any length. The <a href="https://github.com/fanzemeng31-arch/reference-audit#from-the-terminal">instructions</a> are on GitHub.</p>
 
 <h2>Guides</h2>
 <ul>
@@ -97,7 +126,7 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line)}
 
 <footer class="small">
 <p id="passline"></p>
-<p>Lists of up to 15 references are free. Longer lists need the <a href="#pass">30-day pass</a>. Questions and bug reports: <a href="https://github.com/fanzemeng31-arch/reference-audit/issues">open an issue</a>. Data from <a href="https://www.crossref.org/">Crossref</a> and <a href="https://openalex.org/">OpenAlex</a>.</p>
+<p>Lists of up to 15 references are free. Longer lists need the <a href="#pass">30-day pass</a>. Questions and bug reports: <a href="https://github.com/fanzemeng31-arch/reference-audit/issues">open an issue</a>. Data from <a href="https://www.crossref.org/">Crossref</a>, <a href="https://openalex.org/">OpenAlex</a>, <a href="https://www.semanticscholar.org/">Semantic Scholar</a>, <a href="https://datacite.org/">DataCite</a> and <a href="https://openlibrary.org/">Open Library</a>. PDF files are read with <a href="https://mozilla.github.io/pdf.js/">PDF.js</a>.</p>
 </footer>
 </main>
 
@@ -126,6 +155,8 @@ const SAMPLE = [
 /* ---------- text handling ---------- */
 const norm = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/<[^>]+>/g, ' ').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 const STOP = new Set('a an the of in on and for to with by from at as is are'.split(' '));
+const BOOK = /\b(press|publishers?|publishing|books|routledge|palgrave|springer|wiley|sage|verlag|elsevier|edition|edn)\b/i;
+const YEAR = /(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)/g;
 function bibToRefs(text) {
   const out = [];
   for (const chunk of text.split(/^\s*@/m).slice(1)) {
@@ -139,9 +170,10 @@ function bibToRefs(text) {
   }
   return out;
 }
+const isBib = text => /^\s*@\w+\s*\{/m.test(text);
 function splitRefs(text) {
   text = text.replace(/\r/g, '');
-  if (/^\s*@\w+\s*\{/m.test(text)) return bibToRefs(text);
+  if (isBib(text)) return bibToRefs(text);
   const parts = /\n\s*\n/.test(text.trim()) ? text.split(/\n\s*\n/).map(p => p.replace(/\s*\n\s*/g, ' ')) : text.split('\n');
   return parts.map(s => s.replace(/^\s*(\[\d+\]|\(\d+\)|\d+[.)])\s*/, '').trim()).filter(s => s.length >= 15);
 }
@@ -153,11 +185,16 @@ function findDoi(s) {
   return d.replace(/[.,;]+$/, '');
 }
 function refYears(ref) {
-  return [...ref.replace(/10\.\d{4,9}\/\S+/g, ' ').matchAll(/(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)/g)].map(m => +m[1]);
+  return [...ref.replace(/10\.\d{4,9}\/\S+/g, ' ').replace(/arxiv[:\s\/]*\d{4}\.\d{4,5}/ig, ' ').matchAll(YEAR)].map(m => +m[1]);
 }
 function guessTitle(ref) {
   const segs = ref.replace(/https?:\/\/\S+|10\.\d{4,9}\/\S+/g, ' ').split(/(?<=[.?!])\s+|['"‘’“”]/).map(s => s.trim()).filter(s => s.split(/\s+/).length >= 3);
   return segs.sort((a, b) => b.length - a.length)[0] || ref.slice(0, 200);
+}
+function firstSurname(ref) {
+  const head = ref.split(/[,(]/)[0].trim().split(/\s+/).filter(w => !/^(\p{Lu}\.?){1,3}$/u.test(w));
+  const w = head[head.length - 1] || '';
+  return /^[\p{L}'’\-]{2,}$/u.test(w) ? norm(w) : '';
 }
 function titleScore(ref, title) {
   const r = norm(ref), t = norm(title);
@@ -189,6 +226,7 @@ async function getJson(url, tries = 3) {
 const CR = 'https://api.crossref.org/works';
 const SEL = 'DOI,title,subtitle,author,issued,published-print,published-online,container-title,type,updated-by';
 const yr = d => d && d['date-parts'] && d['date-parts'][0] && d['date-parts'][0][0];
+const lastWord = s => String(s || '').trim().split(/\s+/).pop();
 function crRec(it) {
   const title = (it.title || [])[0] || '', sub = (it.subtitle || [])[0] || '';
   return { src: 'Crossref', doi: it.DOI || null, title, full: sub ? title + ' ' + sub : title,
@@ -199,10 +237,26 @@ function crRec(it) {
 function oaRec(w) {
   return { src: 'OpenAlex', doi: w.doi ? w.doi.replace(/^https?:\/\/doi\.org\//i, '') : null, title: w.title || '', full: w.title || '',
     years: w.publication_year ? [w.publication_year] : [],
-    authors: (w.authorships || []).map(a => ((a.author && a.author.display_name) || '').trim().split(/\s+/).pop()).filter(Boolean),
+    authors: (w.authorships || []).map(a => lastWord(a.author && a.author.display_name)).filter(Boolean),
     journal: (w.primary_location && w.primary_location.source && w.primary_location.source.display_name) || '', retracted: !!w.is_retracted };
 }
+function dcRec(a) {
+  const title = ((a.titles || [])[0] || {}).title || '';
+  return { src: 'DataCite', doi: a.doi || null, title, full: title, years: a.publicationYear ? [+a.publicationYear] : [],
+    authors: (a.creators || []).map(c => c.familyName || lastWord((c.name || '').split(',')[0])).filter(Boolean),
+    journal: (a.container && a.container.title) || '', retracted: false };
+}
+function s2Rec(p) {
+  const x = p.externalIds || {};
+  return { src: 'Semantic Scholar', doi: x.DOI || (x.ArXiv ? '10.48550/arXiv.' + x.ArXiv : null), url: p.url || null, title: p.title || '', full: p.title || '',
+    years: p.year ? [p.year] : [], authors: (p.authors || []).map(a => lastWord(a.name)).filter(Boolean), journal: p.venue || '', retracted: false };
+}
+function olRec(d) {
+  return { src: 'Open Library', doi: null, url: 'https://openlibrary.org' + d.key, title: d.title || '', full: d.subtitle ? d.title + ' ' + d.subtitle : (d.title || ''),
+    years: d.first_publish_year ? [d.first_publish_year] : [], authors: (d.author_name || []).map(lastWord).filter(Boolean), journal: '', retracted: false, soft: true };
+}
 async function crByDoi(doi) { const j = await getJson(CR + '/' + encodeURIComponent(doi)); return j === null ? null : (j && j.message ? crRec(j.message) : undefined); }
+async function dcByDoi(doi) { const j = await getJson('https://api.datacite.org/dois/' + encodeURIComponent(doi), 2); return j === null ? null : (j && j.data ? dcRec(j.data.attributes) : undefined); }
 async function crSearch(ref) {
   const q = ref.replace(/https?:\/\/\S+/g, ' ').slice(0, 400);
   const j = await getJson(CR + '?query.bibliographic=' + encodeURIComponent(q) + '&rows=5&select=' + SEL);
@@ -211,6 +265,23 @@ async function crSearch(ref) {
 async function oaSearch(ref) {
   const j = await getJson('https://api.openalex.org/works?search=' + encodeURIComponent(guessTitle(ref).slice(0, 200)) + '&per-page=5&select=id,doi,title,publication_year,authorships,primary_location,is_retracted', 1);
   return j && j.results ? j.results.map(oaRec) : undefined;
+}
+let S2_OFF = false;
+async function s2Search(ref) {
+  const q = norm(guessTitle(ref)).slice(0, 200);
+  if (S2_OFF || !q) return undefined;
+  let r;
+  try { r = await fetch('https://api.semanticscholar.org/graph/v1/paper/search?query=' + encodeURIComponent(q) + '&limit=5&fields=title,year,authors,venue,externalIds,url'); } catch (e) { S2_OFF = true; return undefined; }
+  if (r.status === 429 || r.status >= 500) { S2_OFF = true; return undefined; }
+  if (!r.ok) return undefined;
+  try { return ((await r.json()).data || []).map(s2Rec); } catch (e) { return undefined; }
+}
+async function olSearch(ref) {
+  const t = norm(guessTitle(ref).replace(/\(?(1[5-9]|20)\d\d[a-z]?\)?/g, ' ').split(/[:.?!]/)[0]);
+  if (t.split(' ').length < 1 || !t) return undefined;
+  const a = firstSurname(ref);
+  const j = await getJson('https://openlibrary.org/search.json?title=' + encodeURIComponent(t) + (a ? '&author=' + encodeURIComponent(a) : '') + '&limit=5&fields=key,title,subtitle,author_name,first_publish_year', 3);
+  return j && j.docs ? j.docs.map(olRec) : undefined;
 }
 
 /* ---------- judging one reference ---------- */
@@ -221,30 +292,43 @@ function weigh(ref, rec) {
   let year = 'none';
   if (ys.length && rec.years.length) year = rec.years.some(y => ys.includes(y)) ? 'match' : rec.years.some(y => ys.some(x => Math.abs(x - y) === 1)) ? 'near' : 'mismatch';
   const first = rec.authors.length ? has(rec.authors[0]) : null;
-  const score = Math.max(titleScore(ref, rec.title), titleScore(ref, rec.full));
-  return { rec, score, year, first, rank: score + (first ? 0.05 : 0) + (year === 'match' ? 0.05 : 0) };
+  let score = Math.max(titleScore(ref, rec.title), titleScore(ref, rec.full));
+  if (score === 0.8 && first) score = 0.9;
+  return { rec, score, year, first, rank: score + (first ? 0.15 : 0) + (year === 'match' ? 0.05 : 0) };
 }
 const pick = (ref, recs) => recs.map(x => weigh(ref, x)).sort((a, b) => b.rank - a.rank)[0] || null;
 
 async function audit(ref) {
-  const out = { ref, verdict: 'miss', rec: null, issues: [], notes: [] };
-  const doi = findDoi(ref);
+  const out = { ref, verdict: 'miss', rec: null, score: 0, issues: [], notes: [], asked: [] };
+  const ask = name => { if (!out.asked.includes(name)) out.asked.push(name); };
+  let doi = findDoi(ref);
+  const ax = !doi && ref.match(/arxiv[:\s\/]*(\d{4}\.\d{4,5})/i);
+  if (ax) doi = '10.48550/arXiv.' + ax[1];
   let best = null, failed = false, doiWrong = false;
   if (doi) {
-    const d = await crByDoi(doi);
-    if (d === null) out.notes.push('The DOI in this reference is not registered with Crossref.');
-    else if (d === undefined) failed = true;
-    else {
+    let d = null;
+    if (!ax) { ask('Crossref'); d = await crByDoi(doi); }
+    if (d === null) {
+      ask('DataCite'); d = await dcByDoi(doi);
+      if (d === null) out.notes.push(ax ? 'The arXiv number in this reference is not registered with DataCite.' : 'The DOI in this reference is not registered with Crossref or DataCite.');
+    }
+    if (d === undefined) failed = true;
+    else if (d) {
       const w = weigh(ref, d);
-      if (w.score >= 0.6) best = w; else { doiWrong = true; out.issues.push('The DOI in this reference belongs to a different work: “' + d.title + '”.'); }
+      if (w.score >= 0.6) best = w; else { doiWrong = true; out.issues.push('The ' + (ax ? 'arXiv number' : 'DOI') + ' in this reference belongs to a different work: “' + d.title + '”.'); }
     }
   }
-  if (!best) { const c = await crSearch(ref); if (c === undefined) failed = true; else best = pick(ref, c); }
-  if (!best || best.score < 0.85 || best.first === false || best.year === 'mismatch') {
-    const o = await oaSearch(ref);
-    if (o && o.length) { const b2 = pick(ref, o); if (b2 && (!best || b2.rank > best.rank)) best = b2; }
+  const weak = () => !best || best.score < 0.85 || best.first === false || best.year === 'mismatch';
+  const take = recs => { if (recs && recs.length) { const b = pick(ref, recs); if (b && (!best || b.rank > best.rank)) best = b; } };
+  if (!best) { ask('Crossref'); const c = await crSearch(ref); if (c === undefined) failed = true; else take(c); }
+  if (weak()) { const o = await oaSearch(ref); if (o) { ask('OpenAlex'); take(o); } }
+  if (weak()) {
+    const book = BOOK.test(ref);
+    if (book) { const o = await olSearch(ref); if (o) { ask('Open Library'); take(o); } }
+    if (weak()) { const s = await s2Search(ref); if (s) { ask('Semantic Scholar'); take(s); } }
+    if (weak() && !book) { const o = await olSearch(ref); if (o) { ask('Open Library'); take(o); } }
   }
-  if (best && best.score >= 0.85 && best.first === false && best.rec.journal && /\b(press|publishers?|publishing|books|routledge|palgrave|springer|wiley|sage|verlag)\b/i.test(ref)) {
+  if (best && best.score >= 0.85 && best.first === false && best.rec.journal && BOOK.test(ref)) {
     out.notes.push('The closest record is an item in ' + best.rec.journal + ' that carries the same title. It may be a review of this book.');
     return out;
   }
@@ -253,13 +337,15 @@ async function audit(ref) {
     if (failed) out.notes.push('The lookup did not complete. Run the check again in a minute.');
     return out;
   }
-  const rec = out.rec = best.rec;
+  const rec = out.rec = best.rec; out.score = best.score;
+  const mine = [...new Set(refYears(ref))].join(', ');
   if (best.score < 0.85) out.issues.push('The closest record has a different title: “' + rec.title + '”.');
   else {
     if (best.first === false) out.issues.push('The record gives ' + rec.authors[0] + ' as first author, a name that does not appear in your reference.');
-    if (best.year === 'mismatch') out.issues.push('The record gives the year ' + rec.years.join(' or ') + '; your reference gives ' + [...new Set(refYears(ref))].join(', ') + '.');
+    if (best.year === 'mismatch' && rec.soft) out.notes.push('Open Library gives ' + rec.years.join(' or ') + ' as the year of first publication; your reference gives ' + mine + ', which may be a later edition.');
+    else if (best.year === 'mismatch') out.issues.push('The record gives the year ' + rec.years.join(' or ') + '; your reference gives ' + mine + '.');
     if (best.year === 'near') out.notes.push('The record gives the year ' + rec.years.join(' or ') + ', one year away from yours. Online and print years often differ by one.');
-    if (doi && !doiWrong && rec.doi && doi.toLowerCase() !== rec.doi.toLowerCase()) out.issues.push('The DOI in your reference differs from the DOI of the record.');
+    if (doi && !ax && !doiWrong && rec.doi && doi.toLowerCase() !== rec.doi.toLowerCase()) out.issues.push('The DOI in your reference differs from the DOI of the record.');
     if (rec.journal && !norm(ref).includes(norm(rec.journal))) out.notes.push('The record names the journal or publisher series as ' + rec.journal + '.');
     if (rec.retracted) { out.verdict = 'retracted'; out.issues.unshift('This work has been retracted.'); return out; }
   }
@@ -267,18 +353,183 @@ async function audit(ref) {
   return out;
 }
 
+/* ---------- reading a draft ---------- */
+let DRAFT = null;
+const HEAD = /^\s*(?:\d+\.?\s*)?(references|reference list|references cited|bibliography|works cited|literature cited|参考文献)\s*:?\s*$/i;
+const TAIL = /^\s*(?:\d+\.?\s*)?(appendix|appendices|supplementary|supporting information|acknowledge?ments?|endnotes|notes)\b/i;
+function splitDraft(text) {
+  const lines = text.replace(/\r/g, '').split('\n');
+  let h = -1;
+  for (let i = lines.length - 1; i >= 0; i--) if (HEAD.test(lines[i])) { h = i; break; }
+  if (h < 0) return null;
+  let end = lines.length;
+  for (let i = h + 3; i < lines.length; i++) if (lines[i].trim().length < 40 && TAIL.test(lines[i])) { end = i; break; }
+  return { body: lines.slice(0, h).join('\n'), refs: lines.slice(h + 1, end) };
+}
+function joinRefs(lines) {
+  const NUM = /^\s*(\[\d+\]|\d{1,3}[.)])\s+/;
+  const numbered = lines.filter(l => NUM.test(l)).length >= 3;
+  const START = /^(\p{Lu}[\p{L}'’\-]+(\s+[\p{L}'’\-]+){0,2},\s*\p{Lu}|\p{Lu}[\p{L}'’\-]+\s+\p{Lu}{1,3}[,.]|.{2,60}\(((1[5-9]|20)\d\d[a-z]?|n\.d\.)\))/u;
+  const done = s => /(1[5-9]|20)\d\d/.test(s) && /[.)\]]$|10\.\d{4,9}\/\S+$|https?:\/\/\S+$|\d{4}\.\d{4,5}$/.test(s);
+  const out = [];
+  let cur = '';
+  for (const raw of lines) {
+    const l = raw.trim();
+    if (!l) continue;
+    if (!cur) { cur = l; continue; }
+    if (numbered ? NUM.test(l) : (START.test(l) && done(cur))) { out.push(cur); cur = l; }
+    else cur = cur.endsWith('-') && /^\p{Ll}/u.test(l) ? cur.slice(0, -1) + l : cur + ' ' + l;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+async function unzipEntry(buf, name) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  let e = buf.byteLength - 22;
+  while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('not a zip file');
+  let p = dv.getUint32(e + 16, true);
+  for (let i = 0, n = dv.getUint16(e + 10, true); i < n; i++) {
+    const method = dv.getUint16(p + 10, true), size = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    if (new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nl)) === name) {
+      const start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true), data = u8.slice(start, start + size);
+      if (method === 0) return new TextDecoder().decode(data);
+      return await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+    }
+    p += 46 + nl + xl + cl;
+  }
+  throw new Error('no ' + name);
+}
+function docxText(xml) {
+  const ent = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+  return xml.split('</w:p>').map(p => [...p.matchAll(/<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>|<w:(tab|br)\b[^>]*\/>/g)].map(m => m[2] ? ' ' : m[1]).join('')
+    .replace(/&(amp|lt|gt|quot|apos);/g, (_, k) => ent[k]).replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n))).join('\n');
+}
+async function pdfText(buf) {
+  const pdfjs = await import('./vendor/pdfjs/pdf.min.mjs');
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL('vendor/pdfjs/pdf.worker.min.mjs', location.href).href;
+  const doc = await pdfjs.getDocument({ data: buf }).promise, lines = [];
+  for (let p = 1; p <= doc.numPages; p++) {
+    const tc = await (await doc.getPage(p)).getTextContent();
+    let line = '', y = null;
+    for (const it of tc.items) {
+      if (!('str' in it)) continue;
+      const iy = it.transform[5];
+      if (y !== null && Math.abs(iy - y) > 2 && line) { lines.push(line); line = ''; }
+      line += it.str; y = iy;
+      if (it.hasEOL) { lines.push(line); line = ''; y = null; }
+    }
+    if (line) lines.push(line);
+  }
+  return lines.map(l => l.trim()).filter(l => l && !/^\d{1,4}$/.test(l)).join('\n');
+}
+async function openFile(f) {
+  const ext = f.name.split('.').pop().toLowerCase();
+  DRAFT = null; $('count').textContent = 'Reading ' + f.name + ' …';
+  try {
+    let text, kind = 'text';
+    if (ext === 'docx') { text = docxText(await unzipEntry(await f.arrayBuffer(), 'word/document.xml')); kind = 'docx'; }
+    else if (ext === 'pdf') { text = await pdfText(await f.arrayBuffer()); kind = 'pdf'; }
+    else text = await f.text();
+    const d = ext === 'bib' ? null : splitDraft(text);
+    if (!d) {
+      if (kind === 'text') { $('refs').value = text; showCount(); }
+      else $('count').textContent = 'No heading such as “References” or “Bibliography” was found in ' + f.name + '. Paste the reference list into the box.';
+      return;
+    }
+    const entries = kind === 'pdf' ? joinRefs(d.refs) : d.refs.map(l => l.trim()).filter(Boolean);
+    $('refs').value = entries.join('\n');
+    DRAFT = { name: f.name, body: d.body };
+    $('count').textContent = 'Read ' + splitRefs($('refs').value).length + ' references from ' + f.name + '. Look through the list in the box before you run the check.';
+  } catch (e) {
+    $('count').textContent = 'Could not read ' + f.name + '. Paste the reference list into the box.';
+  }
+}
+function parseInput() {
+  const text = $('refs').value, d = isBib(text) ? null : splitDraft(text);
+  if (d && d.body.trim().length > 400) return { refs: splitRefs(d.refs.join('\n')), body: d.body, name: 'the pasted text' };
+  return { refs: splitRefs(text), body: DRAFT ? DRAFT.body : '', name: DRAFT ? DRAFT.name : '' };
+}
+
+/* ---------- comparing the list with the citations in the text ---------- */
+const NOTNAME = new Set('In On At By Since During Until From After Before Between Around Circa About Over Under Through Throughout Early Late Mid January February March April May June July August September October November December Table Figure Fig Chapter Section Volume Vol No Act Law Article Summer Winter Spring Autumn Fall See Cf The And However Moreover Furthermore Thus Therefore Similarly Also While Although As For But Yet This That These Those Here Both Following According Unlike Like Whereas Indeed Instead'.split(' '));
+function crossCheck(body, refs) {
+  const R = refs.map(r => ({ n: ' ' + norm(r) + ' ', years: new Set(refYears(r)), first: firstSurname(r) }));
+  const nums = new Set();
+  let groups = 0;
+  for (const m of body.matchAll(/\[(\d{1,3}(?:\s*[-–,]\s*\d{1,3})*)\]/g)) {
+    groups++;
+    for (const part of m[1].split(',')) { const [a, b] = part.split(/[-–]/).map(x => +x.trim()); for (let k = a; k <= (b || a) && k < a + 200; k++) nums.add(k); }
+  }
+  const cites = [];
+  const re = /((?:\p{Lu}[\p{L}'’\-]+(?:,\s+(?:and\s+|&\s+)?|\s+(?:and|&)\s+))*\p{Lu}[\p{L}'’\-]+)(?:\s+et\s+al\.?)?,?\s*\(?((?:1[5-9]|20)\d\d[a-z]?(?:\s*[,;]\s*(?:1[5-9]|20)\d\d[a-z]?)*)(?!\d)/gu;
+  for (const m of body.matchAll(re)) {
+    const names = m[1].split(/,\s+|\s+(?:and|&)\s+/).map(s => s.replace(/^(and|&)\s+/, '').replace(/['’]s$/, '')).filter(w => w && !NOTNAME.has(w));
+    if (!names.length) continue;
+    for (const y of m[2].match(/(1[5-9]|20)\d\d/g)) cites.push({ names: names.map(norm), year: +y, label: names.join(', ') + ' ' + y });
+  }
+  if (groups >= 3 && groups > cites.length) {
+    return { mode: 'numbered', n: groups,
+      missing: [...nums].filter(k => k < 1 || k > refs.length).sort((a, b) => a - b).map(k => 'Citation [' + k + ']: the list has ' + refs.length + ' entries.'),
+      uncited: refs.map((r, i) => nums.has(i + 1) ? null : 'Entry ' + (i + 1) + ': ' + r.slice(0, 110)).filter(Boolean) };
+  }
+  const missing = [...new Set(cites.filter(c => !R.some(r => r.years.has(c.year) && c.names.some(nm => r.n.includes(' ' + nm + ' ')))).map(c => c.label))];
+  const uncited = refs.filter((r, i) => R[i].first && R[i].years.size && !cites.some(c => R[i].years.has(c.year) && c.names.includes(R[i].first))).map(r => r.slice(0, 110));
+  return { mode: 'author and year', n: cites.length, missing, uncited };
+}
+function intextCard(x, name, total) {
+  const list = a => '<ul>' + a.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>';
+  let h = '<div class="card"><span class="badge miss">Citations in the text</span>';
+  if (!x.n) return h + '<p class="ref">No author and year citations such as (Merton, 1968) and no numbered citations such as [12] were found in ' + esc(name) + ', so the list could not be compared with the text. Citations placed in footnotes are not read.</p></div>';
+  h += '<p class="ref">' + x.n + ' ' + esc(x.mode) + ' citation' + (x.n > 1 ? 's' : '') + ' in ' + esc(name) + ' were compared with the ' + total + ' entries of the list.</p>';
+  h += x.missing.length ? '<p class="ref"><strong>Cited in the text, with no entry in the list (' + x.missing.length + '):</strong></p>' + list(x.missing) : '<p class="ref">Every citation found in the text has an entry in the list.</p>';
+  h += x.uncited.length ? '<p class="ref"><strong>In the list, with no citation found in the text (' + x.uncited.length + '):</strong></p>' + list(x.uncited) : '<p class="ref">Every entry in the list is cited in the text.</p>';
+  return h + '<p class="small">This comparison happens in your browser. The text of your draft is not sent anywhere.</p></div>';
+}
+
+/* ---------- rewriting the list in a citation style ---------- */
+async function formatOne(doi, style) {
+  try {
+    const r = await fetch('https://doi.org/' + doi.split('/').map(encodeURIComponent).join('/'), { headers: { Accept: 'text/x-bibliography; style=' + style } });
+    if (!r.ok) return null;
+    const d = document.createElement('textarea');
+    d.innerHTML = (await r.text()).replace(/<[^>]+>/g, '');
+    return d.value.replace(/\s*Edited by ,/g, '').replace(/^\s*(\[\d+\]|\d+\.)\s*/, '').replace(/\s+/g, ' ').trim() || null;
+  } catch (e) { return null; }
+}
+async function formatAll() {
+  const sel = $('style'), style = sel.value, name = sel.options[sel.selectedIndex].text, n = RESULTS.length, lines = [];
+  let kept = 0;
+  $('fmt').disabled = true;
+  for (let i = 0; i < n; i++) {
+    const o = RESULTS[i];
+    let t = null;
+    if (o.rec && o.rec.doi && (o.verdict === 'ok' || (o.verdict === 'warn' && o.score >= 0.85))) {
+      $('fmtnote').textContent = 'Rewriting ' + (i + 1) + ' of ' + n + ' …';
+      t = await formatOne(o.rec.doi, style); await sleep(120);
+    }
+    if (t) lines.push(t); else { kept++; lines.push(o.ref); }
+  }
+  $('fmtout').value = lines.join('\n\n'); $('fmtwrap').hidden = false; $('copy').hidden = false; $('fmt').disabled = false;
+  $('fmtnote').textContent = (n - kept) + ' of ' + n + ' entries were rewritten in ' + name + ' style from the matched record.' + (kept === 1 ? ' 1 was left as you typed it, because it has no confirmed record with a DOI.' : kept ? ' ' + kept + ' were left as you typed them, because they have no confirmed record with a DOI.' : '') + ' Read any entry labelled Check against your source before you keep it.';
+  document.body.dataset.fmt = '1';
+}
+
 /* ---------- page ---------- */
 const LABEL = { ok: 'Found', warn: 'Check', retracted: 'Retracted', miss: 'No record', error: 'Lookup failed' };
 let RESULTS = [], FILTER = null;
-function missText(ref) {
-  if (/[Ѐ-ӿ֐-ۿ฀-๿぀-ヿ一-鿿가-힯]/.test(ref)) return 'No matching record in Crossref or OpenAlex. This reference is not written in Latin script, and the two indexes hold few such works, so the missing record tells you little. Check it in the index for its own language, such as CNKI for Chinese journals.';
-  if (/\b(press|publishers?|publishing|books|routledge|palgrave|springer|wiley|sage|verlag|elsevier|working paper|report|thesis|dissertation)\b/i.test(ref)) return 'No matching record in Crossref or OpenAlex. This looks like a book, report or thesis, which the two indexes often miss. Check it in a library catalogue.';
-  return 'No matching record in Crossref or OpenAlex. If this is a journal article, treat it as doubtful until you have found it yourself.';
+const orList = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' or ' + a[a.length - 1] : (a[0] || 'the indexes');
+function missText(o) {
+  const head = 'No matching record in ' + orList(o.asked) + '. ';
+  if (/[Ѐ-ӿ֐-ۿ฀-๿぀-ヿ一-鿿가-힯]/.test(o.ref)) return head + 'This reference is not written in Latin script, and these indexes hold few such works, so the missing record tells you little. Check it in the index for its own language, such as CNKI for Chinese journals.';
+  if (BOOK.test(o.ref) || /\b(working paper|report|thesis|dissertation)\b/i.test(o.ref)) return head + 'This looks like a book, report or thesis, which these indexes often miss. Check it in a library catalogue.';
+  return head + 'If this is a journal article, treat it as doubtful until you have found it yourself.';
 }
 function card(o, i) {
   const r = o.rec;
-  const recLine = r ? '<p class="rec">Record in ' + esc(r.src) + ': ' + esc(r.authors.slice(0, 3).join(', ') + (r.authors.length > 3 ? ' et al.' : '')) + ' (' + esc(r.years.length ? Math.min(...r.years) : 'no year') + ') ' + esc(r.title) + (r.journal ? '. ' + esc(r.journal) : '') + (r.doi ? '. <a href="https://doi.org/' + esc(encodeURI(r.doi)) + '" rel="noopener" target="_blank">' + esc(r.doi) + '</a>' : '') + '</p>' : '';
-  const miss = o.verdict === 'miss' ? '<ul><li>' + esc(missText(o.ref)) + '</li></ul>' : '';
+  const link = r ? (r.doi ? '. <a href="https://doi.org/' + esc(encodeURI(r.doi)) + '" rel="noopener" target="_blank">' + esc(r.doi) + '</a>' : (r.url ? '. <a href="' + esc(r.url) + '" rel="noopener" target="_blank">View the record</a>' : '')) : '';
+  const recLine = r ? '<p class="rec">Record in ' + esc(r.src) + ': ' + esc(r.authors.slice(0, 3).join(', ') + (r.authors.length > 3 ? ' et al.' : '')) + ' (' + esc(r.years.length ? Math.min(...r.years) : 'no year') + ') ' + esc(r.title) + (r.journal ? '. ' + esc(r.journal) : '') + link + '</p>' : '';
+  const miss = o.verdict === 'miss' ? '<ul><li>' + esc(missText(o)) + '</li></ul>' : '';
   const list = a => a.length ? '<ul>' + a.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '';
   return '<div class="card" data-v="' + o.verdict + '"><span class="badge ' + o.verdict + '">' + (i + 1) + '. ' + LABEL[o.verdict] + '</span><p class="ref">' + esc(o.ref) + '</p>' + list(o.issues) + miss + (o.notes.length ? '<div class="small">' + list(o.notes) + '</div>' : '') + recLine + '</div>';
 }
@@ -292,27 +543,32 @@ function banner(total, done) {
   if (total <= done) { b.innerHTML = ''; return; }
   b.innerHTML = '<div class="banner noprint"><strong>Checked the first ' + done + ' of ' + total + ' references.</strong> A ' + CONFIG.passDays + '-day pass (' + esc(CONFIG.price) + ', one payment, no subscription) checks up to ' + CONFIG.hardCap + ' references at a time and adds the CSV download. <a class="btn primary" style="margin-left:6px" href="' + esc(CONFIG.paymentLink) + '">Buy the pass</a></div>';
 }
+function showCount() { const n = parseInput().refs.length; $('count').textContent = n ? n + ' reference' + (n > 1 ? 's' : '') : ''; }
 async function run() {
-  const all = splitRefs($('refs').value);
+  const inp = parseInput(), all = inp.refs;
   if (!all.length) { $('count').textContent = 'Paste at least one reference first.'; return; }
   const selling = !!CONFIG.paymentLink, pass = passActive();
   const refs = all.slice(0, selling && !pass ? CONFIG.freeLimit : CONFIG.hardCap);
-  RESULTS = new Array(refs.length); FILTER = null;
+  RESULTS = new Array(refs.length); FILTER = null; S2_OFF = false;
+  delete document.body.dataset.done; delete document.body.dataset.fmt;
   $('run').disabled = true; $('progwrap').hidden = false; $('prog').max = refs.length; $('prog').value = 0;
-  $('results').innerHTML = ''; $('summary').innerHTML = ''; $('banner').innerHTML = '';
+  $('results').innerHTML = ''; $('summary').innerHTML = ''; $('banner').innerHTML = ''; $('intext').innerHTML = '';
+  $('fmtrow').hidden = true; $('fmtwrap').hidden = true; $('copy').hidden = true; $('fmtnote').textContent = '';
   let next = 0, done = 0;
   const worker = async () => {
     while (next < refs.length) {
       const i = next++;
-      try { RESULTS[i] = await audit(refs[i]); } catch (e) { RESULTS[i] = { ref: refs[i], verdict: 'error', rec: null, issues: [], notes: ['The lookup did not complete. Run the check again in a minute.'] }; }
+      try { RESULTS[i] = await audit(refs[i]); } catch (e) { RESULTS[i] = { ref: refs[i], verdict: 'error', rec: null, score: 0, issues: [], notes: ['The lookup did not complete. Run the check again in a minute.'], asked: [] }; }
       done++; $('prog').value = done; $('progtext').textContent = 'Checked ' + done + ' of ' + refs.length;
       await sleep(250);
     }
   };
   await Promise.all([worker(), worker(), worker()]);
   render(); banner(all.length, refs.length);
+  if (inp.body.trim().length > 200) $('intext').innerHTML = intextCard(crossCheck(inp.body, all), inp.name, all.length);
   $('run').disabled = false; $('progtext').textContent = 'Done. ' + refs.length + ' references checked.';
   $('print').hidden = false; $('csv').hidden = selling && !pass;
+  $('fmtrow').hidden = !RESULTS.some(o => o.rec && o.rec.doi);
   document.body.dataset.done = '1';
 }
 function csv() {
@@ -323,11 +579,14 @@ function csv() {
   a.download = 'reference-audit.csv'; a.click();
 }
 $('run').onclick = run;
-$('sample').onclick = () => { $('refs').value = SAMPLE; $('count').textContent = ''; };
+$('sample').onclick = () => { DRAFT = null; $('refs').value = SAMPLE; $('count').textContent = ''; };
 $('csv').onclick = csv;
 $('print').onclick = () => window.print();
+$('fmt').onclick = formatAll;
+$('copy').onclick = async () => { try { await navigator.clipboard.writeText($('fmtout').value); $('copy').textContent = 'Copied'; } catch (e) { $('fmtout').select(); } };
+$('file').onchange = async e => { const f = e.target.files[0]; if (f) await openFile(f); e.target.value = ''; };
 $('summary').onclick = e => { const f = e.target.dataset && e.target.dataset.f; if (f) { FILTER = FILTER === f ? null : f; render(); } };
-$('refs').oninput = () => { const n = splitRefs($('refs').value).length; $('count').textContent = n ? n + ' reference' + (n > 1 ? 's' : '') : ''; };
+$('refs').oninput = () => { if (!$('refs').value.trim()) DRAFT = null; showCount(); };
 if (passActive()) $('passline').textContent = 'Your pass is active on this browser until ' + new Date(+localStorage.getItem(PASS_KEY)).toLocaleDateString() + '.';
 </script>
 </body>
